@@ -8,7 +8,7 @@ using Microsoft.ML.Data;
 using Microsoft.ML.Trainers;
 using Microsoft.ML;
 
-namespace MyMLApp
+namespace SentimentModel_ConsoleApp
 {
     public partial class SentimentModel
     {
