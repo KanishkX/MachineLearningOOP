@@ -30,7 +30,6 @@
         {
             predictButton = new Button();
             reTrainButton = new Button();
-            compareButton = new Button();
             textBox1 = new TextBox();
             guessBox = new TextBox();
             confidenceBox = new TextBox();
@@ -43,7 +42,7 @@
             label4 = new Label();
             label5 = new Label();
             label6 = new Label();
-            comboBox = new ComboBox();
+            GuessInputBox = new TextBox();
             SuspendLayout();
             // 
             // predictButton
@@ -58,22 +57,13 @@
             // 
             // reTrainButton
             // 
-            reTrainButton.Location = new Point(72, 260);
+            reTrainButton.Location = new Point(72, 272);
             reTrainButton.Name = "reTrainButton";
             reTrainButton.Size = new Size(98, 35);
             reTrainButton.TabIndex = 1;
             reTrainButton.Text = "Re-Train";
             reTrainButton.UseVisualStyleBackColor = true;
-            // 
-            // compareButton
-            // 
-            compareButton.Location = new Point(72, 329);
-            compareButton.Name = "compareButton";
-            compareButton.Size = new Size(98, 35);
-            compareButton.TabIndex = 2;
-            compareButton.Text = "Compare Models";
-            compareButton.UseVisualStyleBackColor = true;
-            compareButton.Click += button2_Click;
+            reTrainButton.Click += reTrainButton_Click;
             // 
             // textBox1
             // 
@@ -174,20 +164,19 @@
             label6.Text = "Weight Diffs:";
             label6.Click += label6_Click;
             // 
-            // comboBox
+            // GuessInputBox
             // 
-            comboBox.FormattingEnabled = true;
-            comboBox.Location = new Point(72, 196);
-            comboBox.Name = "comboBox";
-            comboBox.Size = new Size(98, 23);
-            comboBox.TabIndex = 15;
+            GuessInputBox.Location = new Point(72, 200);
+            GuessInputBox.Name = "GuessInputBox";
+            GuessInputBox.Size = new Size(100, 23);
+            GuessInputBox.TabIndex = 16;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(618, 449);
-            Controls.Add(comboBox);
+            Controls.Add(GuessInputBox);
             Controls.Add(label6);
             Controls.Add(label5);
             Controls.Add(label4);
@@ -200,7 +189,6 @@
             Controls.Add(confidenceBox);
             Controls.Add(guessBox);
             Controls.Add(textBox1);
-            Controls.Add(compareButton);
             Controls.Add(reTrainButton);
             Controls.Add(predictButton);
             Name = "Form1";
@@ -213,7 +201,6 @@
 
         private Button predictButton;
         private Button reTrainButton;
-        private Button compareButton;
         private TextBox textBox1;
         private TextBox guessBox;
         private TextBox confidenceBox;
@@ -227,5 +214,7 @@
         private Label label5;
         private Label label6;
         private ComboBox comboBox;
+        private TextBox textBox2;
+        private TextBox GuessInputBox;
     }
 }
