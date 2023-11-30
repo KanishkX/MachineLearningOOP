@@ -52,7 +52,7 @@ namespace MLForm
 
         #endregion
 
-        private static string MLNetModelPath = Path.GetFullPath("C:\\Users\\W0478410\\source\\repos\\MachineLearning\\MLForm\\MLModel1.mlnet");
+        private static string MLNetModelPath = Path.GetFullPath(@"C:\\Users\\Kanis\\source\\repos\\MachineLearningOOP\\MLForm\\MLModel1.mlnet");
 
         public static readonly Lazy<PredictionEngine<ModelInput, ModelOutput>> PredictEngine = new Lazy<PredictionEngine<ModelInput, ModelOutput>>(() => CreatePredictEngine(), true);
 
