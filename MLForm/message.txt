@@ -1,3 +1,4 @@
+Statement Sentiment 
 Wow... Loved this place.	1
 Crust is not good.	0
 Not tasty and the texture was just nasty.	0
@@ -17366,3 +17367,24 @@ it was good enough. 1
 food was bad 0
 it was really good! 1
 it was not good! 0
+Fuck you 0
+Fuck you 0
+Fuck you! 0
+Fuck you! 0
+hello 
+hello 1
+hello 1
+Hello 1
+hello! 1
+hello! 1
+fuck this 1
+fuck this shit 
+this is fucked up 
+Hello  1
+hello 1
+hello 1
+hello 1
+hello 1
+Hello 1
+Hello 1
+hello 1

@@ -13,7 +13,7 @@ namespace MLForm
 {
     public partial class MLModel1
     {
-        public const string RetrainFilePath =  @"C:\Users\W0478410\Downloads\message.txt";
+        public const string RetrainFilePath =  @"C:\Users\domin\OneDrive - Nova Scotia Community College\YEAR 2\SEMESTER 1\Advanced-OOP\myMLApp\MLForm\message.txt";
         public const char RetrainSeparatorChar = '	';
         public const bool RetrainHasHeader =  false;
 
@@ -47,7 +47,6 @@ namespace MLForm
         }
 
 
-
         /// <summary>
         /// Save a model at the specified path.
         /// </summary>
@@ -68,7 +67,7 @@ namespace MLForm
 
 
         /// <summary>
-        /// Retrains model using the pipeline generated as part of the training process.
+        /// Retrain model using the pipeline generated as part of the training process.
         /// </summary>
         /// <param name="mlContext"></param>
         /// <param name="trainData"></param>
@@ -77,10 +76,8 @@ namespace MLForm
         {
             var pipeline = BuildPipeline(mlContext);
             var model = pipeline.Fit(trainData);
-
             return model;
         }
-
 
         /// <summary>
         /// build the pipeline that is used from model builder. Use this function to retrain model.
@@ -93,7 +90,7 @@ namespace MLForm
             var pipeline = mlContext.Transforms.Text.FeaturizeText(inputColumnName:@"col0",outputColumnName:@"col0")      
                                     .Append(mlContext.Transforms.Concatenate(@"Features", new []{@"col0"}))      
                                     .Append(mlContext.Transforms.Conversion.MapValueToKey(outputColumnName:@"col1",inputColumnName:@"col1",addKeyValueAnnotationsAsText:false))      
-                                    .Append(mlContext.MulticlassClassification.Trainers.LbfgsMaximumEntropy(new LbfgsMaximumEntropyMulticlassTrainer.Options(){L1Regularization=0.03125F,L2Regularization=0.3624528F,LabelColumnName=@"col1",FeatureColumnName=@"Features"}))      
+                                    .Append(mlContext.MulticlassClassification.Trainers.OneVersusAll(binaryEstimator: mlContext.BinaryClassification.Trainers.LbfgsLogisticRegression(new LbfgsLogisticRegressionBinaryTrainer.Options(){L1Regularization=0.2005503F,L2Regularization=0.2816341F,LabelColumnName=@"col1",FeatureColumnName=@"Features"}), labelColumnName:@"col1"))      
                                     .Append(mlContext.Transforms.Conversion.MapKeyToValue(outputColumnName:@"PredictedLabel",inputColumnName:@"PredictedLabel"));
 
             return pipeline;
