@@ -129,45 +129,90 @@ namespace MLForm
         {
             return mlContext.Data.LoadFromTextFile<MLModel1.ModelInput>(inputDataFilePath, separatorChar, hasHeader);
         }
-        ITransformer RetrainModel()
-        {
 
+        ITransformer TrainModel()
+        {
             // 1. Load data
+            // 1.1 Load data from file
             var mlContext = new MLContext();
-            char SeparatorChar = '	';
-            bool HasHeader = true;
-            var data = LoadIDataViewFromFile(mlContext, filePath, SeparatorChar, HasHeader);
-            
+            var data = LoadIDataViewFromFile(mlContext, filePath, ' ', true);
+
+            // 1.2 Split data
             TrainTestData dataSplit = mlContext.Data.TrainTestSplit(data, testFraction: 0.2);
             IDataView trainingDataView = dataSplit.TrainSet;
             IDataView testDataView = dataSplit.TestSet;
 
             // 2. Build training pipeline
+            // 2.1 Create trainer
             var trainer = mlContext.MulticlassClassification.Trainers.LbfgsMaximumEntropy(
                 new LbfgsMaximumEntropyMulticlassTrainer.Options() { L1Regularization = 0.03125F, L2Regularization = 0.3624528F, LabelColumnName = @"col1", FeatureColumnName = @"Features" });
-            
+
+            // 2.2 Build data prep pipeline
             var dataPrepPipeline = BuildDataPrepPipeline(mlContext);
+            // 2.3 Build full pipeline
             var pipeline = BuildPipeline(mlContext, trainer);
 
-            var preppedData = dataPrepPipeline.Fit(data);
+            // 2.4 Fit data prep pipeline
+            var preppedData = dataPrepPipeline.Fit(trainingDataView);
 
-            var transformedData = preppedData.Transform(data);
-            var transformedTrainer = trainer.Fit(transformedData);
-            // 3. Train model
+            // 3. Train full model
             var model = pipeline.Fit(trainingDataView);
 
-            // 4.1 Load original model
-            var trainerModel = mlContext.Model.Load(trainerFilePath, out DataViewSchema modelSchema);
-            var pipelineModel = mlContext.Model.Load(dataPrepPath, out DataViewSchema modelSchema2);
+            // 4 Save model
+            
+            // 4.1 Transform data prep pipeline
+            var transformedData = preppedData.Transform(trainingDataView);
+            var transformedTrainer = trainer.Fit(transformedData);
+            
+            // 4.2 Save full model
+            mlContext.Model.Save(model, data.Schema, modelPath);
+            // 4.3 Save data prep
+            mlContext.Model.Save(preppedData, data.Schema, dataPrepPath);
+            // 4.4 Save trainer
+            mlContext.Model.Save(transformedTrainer, transformedData.Schema, trainerFilePath);
+            return model;
+        }
+
+        ITransformer RetrainModel()
+        {
+            // 1. Load models
+            var mlContext = new MLContext();
+            
+            var trainerModel = mlContext.Model.Load(trainerFilePath, out var trainerSchema);
+            var pipelineModel = mlContext.Model.Load(dataPrepPath, out var pipelineSchema);
+
+            // 1.1 Load data from file
+            var newData = LoadIDataViewFromFile(mlContext, filePath, ' ', true);
+
+            // 1.2 Split data
+            TrainTestData dataSplit = mlContext.Data.TrainTestSplit(newData, testFraction: 0.2);
+            IDataView trainingDataView = dataSplit.TrainSet;
+            IDataView testDataView = dataSplit.TestSet;
+
+
+            // 2. Build training pipeline
+
+            // 2.1 Pull original model parameters
             var originalModelParameters =
-                ((ISingleFeaturePredictionTransformer<object>)trainerModel).Model as MaximumEntropyModelParameters;
-            var retrainedModel = trainer.Fit(transformedData, originalModelParameters);
+                ((ISingleFeaturePredictionTransformer<MaximumEntropyModelParameters>)trainerModel).Model;
+            
+            // 2.2 Transform pipeline with new data
+            var newTransformedData = pipelineModel.Transform(trainingDataView);
+
+            // 2.3 Retrain model
+            var trainer = mlContext.MulticlassClassification.Trainers.LbfgsMaximumEntropy(
+                new LbfgsMaximumEntropyMulticlassTrainer.Options() { L1Regularization = 0.03125F, L2Regularization = 0.3624528F, LabelColumnName = @"col1", FeatureColumnName = @"Features" });
+
+            //var retrainedModel = mlContext.MulticlassClassification.Trainers.LbfgsMaximumEntropy().Fit(newTransformedData, originalModelParameters);
+            var retrainedModel = trainer.Fit(newTransformedData, originalModelParameters);
+
+            // 2.5 Pull new model parameters
             var newModelParameters =
-                ((ISingleFeaturePredictionTransformer<object>)retrainedModel).Model as MaximumEntropyModelParameters;
+                retrainedModel.Model;
 
+            // 3. Comapre models
 
-
-            // Inspect Change in Weights
+            // 3.1 Inspect Change in Weights
             VBuffer<float>[] originalWeights = default;
             VBuffer<float>[] newWeights = default;
             originalModelParameters.GetWeights(ref originalWeights, out int numClasses);
@@ -175,7 +220,7 @@ namespace MLForm
 
             var weightDiffs =
                 originalWeights.Zip(newWeights, (original, retrained) =>
-                {   
+                {
                     var originalValues = original.GetValues();
                     var newValues = retrained.GetValues();
                     float[] difference = new float[originalValues.Length];
@@ -186,22 +231,14 @@ namespace MLForm
                     return difference;
                 }).ToArray();
 
-            // Show weights in form
+            //// Show weights in form
             for (int i = 0; i < weightDiffs.Count(); i++)
             {
                 Console.WriteLine($"{originalWeights.ToArray()[i]} | {newWeights.ToArray()[i]} | {weightDiffs[i]}");
             }
 
-            // 4.2 Save model
 
-            // Save full model
-            mlContext.Model.Save(model, data.Schema, modelPath);
-            // Save data prep
-            mlContext.Model.Save(preppedData, data.Schema, dataPrepPath);
-            // Save trainer
-            mlContext.Model.Save(transformedTrainer, transformedData.Schema, trainerFilePath);
-
-            return model;
+            return retrainedModel;
         }
 
         private static IEstimator<ITransformer> BuildDataPrepPipeline(MLContext mlContext)
