@@ -17367,24 +17367,30 @@ it was good enough. 1
 food was bad 0
 it was really good! 1
 it was not good! 0
-Fuck you 0
-Fuck you 0
-Fuck you! 0
-Fuck you! 0
-hello 
-hello 1
-hello 1
-Hello 1
-hello! 1
-hello! 1
-fuck this 1
-fuck this shit 
-this is fucked up 
-Hello  1
-hello 1
-hello 1
-hello 1
-hello 1
-Hello 1
-Hello 1
-hello 1
+
+it was delicious 1
+it was delicious 1
+it was great!! 1
+it was super good! 1
+super bad 0
+super bad 0
+super bad 0
+it was beautifull! 1
+it was very good this time! 1
+it was best! 1
+ir was best! 1
+it wsa best! 1
+its good! 1
+its good! 1
+its good! 1
+its very good!! 1
+its very bad 0
+it was best! 1
+shit 0
+its nice 1
+it was good 1
+this was shit 0
+this was shit 0
+amazing 1
+good! 1
+woof! 0
