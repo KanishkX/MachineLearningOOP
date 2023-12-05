@@ -6,11 +6,12 @@ using SentimentModel_ConsoleApp;
 using System.Windows.Forms;
 using static Microsoft.ML.DataOperationsCatalog;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Linq;
 namespace MLForm
 {
     public partial class Form1 : Form
     {
-        private string filePath = @"C:\Users\domin\OneDrive - Nova Scotia Community College\YEAR 2\SEMESTER 1\Advanced-OOP\myMLApp\MLForm\message.txt";
+        private string filePath = @"C:\Users\W0478410\Source\Repos\MachineLearningOOP\MLForm\message.txt";
         private string trainerFilePath = "trainer.zip";
         private string modelPath = "retrainedModel.zip";
         private string dataPrepPath = "data_preparation.zip";
@@ -218,11 +219,37 @@ namespace MLForm
             originalModelParameters.GetWeights(ref originalWeights, out int numClasses);
             newModelParameters.GetWeights(ref newWeights, out numClasses);
 
+            var actualWeight =
+                originalWeights.Select(original =>
+                {
+                    var originalValues = original.GetValues();
+                    float[] actualWeightArray = new float[originalValues.Length];
+                    for (int i = 0; i < originalValues.Length; i++)
+                    {   
+                        actualWeightArray[i] = originalValues[i];
+                    }
+                    return actualWeightArray;
+                }).ToArray();
+
+            
+            var newWeight =
+                originalWeights.Zip(newWeights, (original, retrained) =>
+                {
+                    var newValues = retrained.GetValues();
+                    float[] Actualweight = new float[newValues.Length];
+                    for (int i = 0; i < newValues.Length; i++)
+                    {
+                        Actualweight[i] = newValues[i];
+                    }
+                    return Actualweight;
+                }).ToArray();
             var weightDiffs =
                 originalWeights.Zip(newWeights, (original, retrained) =>
                 {
                     var originalValues = original.GetValues();
                     var newValues = retrained.GetValues();
+                    float[] actualWeightArray = new float[originalValues.Length];
+                    float[] Actualweight = new float[newValues.Length];
                     float[] difference = new float[originalValues.Length];
                     for (int i = 0; i < originalValues.Length; i++)
                     {
@@ -230,12 +257,18 @@ namespace MLForm
                     }
                     return difference;
                 }).ToArray();
+            double actualWeightAverage = actualWeight.SelectMany(array => array).Average();
+            double newWeightAverage = newWeight.SelectMany(array => array).Average();
+            double weightDiffsAverage = weightDiffs.SelectMany(array => array).Average();
 
-            //// Show weights in form
-            for (int i = 0; i < weightDiffs.Count(); i++)
-            {
-                Console.WriteLine($"{originalWeights.ToArray()[i]} | {newWeights.ToArray()[i]} | {weightDiffs[i]}");
-            }
+            originalBox.Text = actualWeightAverage.ToString();
+            reweightBox.Text = newWeightAverage.ToString();
+            diffBox.Text = weightDiffsAverage.ToString();
+            ////// Show weights in form
+            //for (int i = 0; i < weightDiffs.Count(); i++)
+            //{
+            //    Console.WriteLine($"{originalWeights.ToArray()[i]} | {newWeights.ToArray()[i]} | {weightDiffs[i]}");
+            //}
 
 
             return retrainedModel;
